@@ -20,8 +20,7 @@ def get_num_results(search_term, start_date, end_date):
     try:
         handler = opener.open(request)
     except HTTPError as e:
-        msg = "It seems that you made too many requests to Google Scholar. Please wait a couple of hours and try again."
-        print("\n" + msg)
+        print("\nIt seems that you made too many requests to Google Scholar. Please wait a couple of hours and try again.")
         sys.exit(e)
     html = handler.read() 
 
@@ -36,14 +35,14 @@ def get_num_results(search_term, start_date, end_date):
         if res == []:
             num_results = '0'
         else:
-            num_results = ''.join(res[0]) # convert string to numbe
+            num_results = ''.join(res[0]) # convert string to number
 
 
     return num_results
 
 def get_range(search_term, start_date, end_date):
 
-    fp = open("out.csv", 'w')
+    fp = open("data/out.csv", 'w')
     fp.write("year,results\n")
     print("year,results")
 
