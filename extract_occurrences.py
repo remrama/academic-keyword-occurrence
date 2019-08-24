@@ -2,6 +2,7 @@
 from bs4 import BeautifulSoup
 from urllib.request import Request, build_opener, HTTPCookieProcessor
 from urllib.parse import urlencode
+from urllib.error import HTTPError
 from http.cookiejar import MozillaCookieJar
 import re, time, sys, urllib
 
@@ -16,7 +17,12 @@ def get_num_results(search_term, start_date, end_date):
     url = "https://scholar.google.com/scholar?as_vis=1&hl=en&as_sdt=1,5&" + urllib.parse.urlencode(query_params)
     opener = build_opener()
     request = Request(url=url, headers={'User-Agent': user_agent})
-    handler = opener.open(request)
+    try:
+        handler = opener.open(request)
+    except HTTPError as e:
+        msg = "It seems that you made too many requests to Google Scholar. Please wait a couple of hours and try again."
+        print("\n" + msg)
+        sys.exit(e)
     html = handler.read() 
 
     # Create soup for parsing HTML and extracting the relevant information
@@ -29,16 +35,11 @@ def get_num_results(search_term, start_date, end_date):
         
         if res == []:
             num_results = '0'
-            success = True
         else:
             num_results = ''.join(res[0]) # convert string to numbe
-            success = True
 
-    else:
-        success = False
-        num_results = 0
 
-    return num_results, success
+    return num_results
 
 def get_range(search_term, start_date, end_date):
 
@@ -48,10 +49,7 @@ def get_range(search_term, start_date, end_date):
 
     for date in range(start_date, end_date + 1):
 
-        num_results, success = get_num_results(search_term, date, date)
-        if not(success):
-            print("It seems that you made to many requests to Google Scholar. Please wait a couple of hours and try again.")
-            break
+        num_results = get_num_results(search_term, date, date)
         year_results = "{0},{1}".format(date, num_results)
         print(year_results)
         fp.write(year_results + '\n')
